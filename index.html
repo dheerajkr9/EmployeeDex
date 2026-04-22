@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmployeeDex — Staff Management System</title>
+    <meta name="description" content="EmployeeDex is a premium college staff management system with secure login, dashboard insights, search, filters, and CSV export.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        royal:  { 50:'#f5f3ff',100:'#ede9fe',200:'#ddd6fe',300:'#c4b5fd',400:'#a78bfa',500:'#8b5cf6',600:'#7c3aed',700:'#6d28d9',800:'#5b21b6',900:'#4c1d95',950:'#2e1065' },
+                        gold:   { 50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f' },
+                        navy:   { 700:'#1e2749',800:'#1e1b4b',900:'#0f0a2e',950:'#070419' },
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .index-page {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 14% 12%, rgba(78, 200, 199, 0.20) 0, transparent 28%),
+                radial-gradient(circle at 82% 18%, rgba(217, 164, 65, 0.16) 0, transparent 26%),
+                radial-gradient(circle at 50% 92%, rgba(109, 40, 217, 0.14) 0, transparent 30%),
+                linear-gradient(135deg, #07131a 0%, #0d1d26 55%, #102532 100%);
+            color: #f4fbff;
+            overflow-x: hidden;
+        }
+
+        .index-shell {
+            position: relative;
+            z-index: 2;
+        }
+
+        .index-card {
+            border: 1px solid rgba(198, 211, 221, 0.14);
+            background: linear-gradient(180deg, rgba(12, 30, 41, 0.92), rgba(7, 20, 27, 0.96));
+            box-shadow: 0 28px 70px rgba(1, 8, 12, 0.5);
+            backdrop-filter: blur(14px);
+        }
+
+        .index-pill {
+            border: 1px solid rgba(198, 211, 221, 0.18);
+            background: rgba(8, 33, 44, 0.68);
+            backdrop-filter: blur(8px);
+        }
+
+        .index-glow {
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 9999px;
+            filter: blur(72px);
+            opacity: 0.28;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .index-glow-a { background: #26a9ad; top: -120px; left: -90px; }
+        .index-glow-b { background: #d9a441; right: -130px; bottom: -110px; }
+        .index-glow-c { background: #6d28d9; right: 12%; top: 42%; opacity: 0.16; }
+
+        .index-hero-grid {
+            display: grid;
+            grid-template-columns: 1.06fr 0.94fr;
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 1024px) {
+            .index-hero-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="index-page" style="font-family:'Manrope',sans-serif;">
+    <div class="index-glow index-glow-a"></div>
+    <div class="index-glow index-glow-b"></div>
+    <div class="index-glow index-glow-c"></div>
+
+    <main class="index-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-10">
+        <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6 lg:mb-8">
+            <div class="logo-searchbar" aria-label="EmployeeDex logo">
+                <span class="logo-avatar logo-avatar-image" aria-hidden="true">
+                    <img src="{{ url_for('static', filename='images/employeedex-logo-tech.png') }}" alt="" class="logo-image">
+                </span>
+                <span class="logo-search-text" aria-label="EmployeeDex">
+                    <span>E</span><span>m</span><span>p</span><span>l</span><span>o</span><span>y</span><span>e</span><span>e</span><span>D</span><span>e</span><span>x</span>
+                </span>
+                <span class="logo-search-icon" aria-hidden="true">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+                <span class="index-pill inline-flex items-center gap-2 px-4 py-2 rounded-full text-steel-200">
+                    <i class="fas fa-shield-halved text-teal-400"></i>
+                    Secure college staff management
+                </span>
+                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-full index-pill text-royal-200 hover:text-white transition-colors">
+                    <i class="fas fa-right-to-bracket text-gold-400"></i>
+                    Login
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-full index-pill text-royal-200 hover:text-white transition-colors">
+                    <i class="fas fa-chart-column text-emerald-400"></i>
+                    Dashboard
+                </a>
+            </div>
+        </header>
+
+        <section class="index-card rounded-[2rem] p-6 sm:p-8 lg:p-10">
+            <div class="index-hero-grid items-center">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-royal-300/70">Employee Record Management System</p>
+                    <h1 class="mt-5 font-['Space_Grotesk'] text-4xl sm:text-5xl lg:text-6xl font-bold leading-[1.02] tracking-[-0.04em] text-white">
+                        One place to manage login, staff records, and dashboard insights.
+                    </h1>
+                    <p class="mt-5 max-w-2xl text-base sm:text-lg text-steel-300 leading-8">
+                        EmployeeDex is a polished Flask application for colleges and institutes. It combines secure login, searchable staff records, department filters, salary tracking, and CSV export in a deployment-friendly layout.
+                    </p>
+
+                    <div class="mt-8 flex flex-col sm:flex-row gap-3">
+                        <a href="{{ url_for('login') }}" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-teal-400 to-amber-400 text-base font-extrabold text-base-900 shadow-lg shadow-teal-900/30 hover:brightness-105 transition-all">
+                            <i class="fas fa-lock"></i>
+                            Open Login
+                        </a>
+                        <a href="#dashboard-preview" class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl index-pill text-base font-semibold text-steel-200 hover:text-white transition-all">
+                            <i class="fas fa-table text-gold-400"></i>
+                            View Dashboard
+                        </a>
+                    </div>
+
+                    <div class="mt-8 grid sm:grid-cols-3 gap-3">
+                        <div class="index-pill rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-white">1000</p>
+                            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-steel-300">Seed records</p>
+                        </div>
+                        <div class="index-pill rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-white">15</p>
+                            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-steel-300">Per page</p>
+                        </div>
+                        <div class="index-pill rounded-2xl p-4">
+                            <p class="text-2xl font-bold text-white">CSV</p>
+                            <p class="mt-1 text-xs uppercase tracking-[0.18em] text-steel-300">Export ready</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="index-card rounded-[1.75rem] p-5 sm:p-6 border border-white/10 bg-white/5">
+                    <div class="rounded-[1.35rem] border border-white/10 bg-navy-950/70 p-5 sm:p-6">
+                        <p class="text-xs uppercase tracking-[0.24em] text-royal-300/70">Included in this software</p>
+                        <div class="mt-4 space-y-4">
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 w-9 h-9 rounded-xl bg-teal-500/15 text-teal-300 grid place-items-center"><i class="fas fa-user-lock"></i></span>
+                                <div>
+                                    <h2 class="font-semibold text-white">Login page</h2>
+                                    <p class="text-sm text-steel-300 mt-1">A secure admin login page with a polished visual style.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 w-9 h-9 rounded-xl bg-amber-500/15 text-amber-300 grid place-items-center"><i class="fas fa-chart-line"></i></span>
+                                <div>
+                                    <h2 class="font-semibold text-white">Dashboard page</h2>
+                                    <p class="text-sm text-steel-300 mt-1">Stats, filters, records, and action buttons for staff management.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <span class="mt-0.5 w-9 h-9 rounded-xl bg-royal-500/15 text-royal-300 grid place-items-center"><i class="fas fa-file-export"></i></span>
+                                <div>
+                                    <h2 class="font-semibold text-white">Deployment friendly</h2>
+                                    <p class="text-sm text-steel-300 mt-1">Uses relative paths and a single Flask entry point for GitHub hosting.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-8 grid lg:grid-cols-[0.92fr_1.08fr] gap-4 lg:gap-6" id="dashboard-preview">
+            <div class="index-card rounded-[1.75rem] p-6 sm:p-7">
+                <div class="flex items-center justify-between gap-3 mb-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.24em] text-royal-300/70">Login page</p>
+                        <h2 class="mt-1 text-2xl font-bold text-white">Admin sign in</h2>
+                    </div>
+                    <i class="fas fa-right-to-bracket text-2xl text-gold-400"></i>
+                </div>
+
+                <form method="POST" action="{{ url_for('login') }}" class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-xs font-semibold text-royal-300 uppercase tracking-wider mb-1.5">Username</label>
+                        <input type="text" id="username" name="username" required placeholder="Enter username"
+                               class="w-full px-4 py-3 rounded-xl bg-navy-950/70 border border-royal-800/40 text-white placeholder-royal-500/40 text-sm focus:outline-none focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/15 transition-all">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-xs font-semibold text-royal-300 uppercase tracking-wider mb-1.5">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required placeholder="Enter password"
+                                   class="w-full px-4 py-3 pr-12 rounded-xl bg-navy-950/70 border border-royal-800/40 text-white placeholder-royal-500/40 text-sm focus:outline-none focus:border-gold-500/50 focus:ring-2 focus:ring-gold-500/15 transition-all">
+                            <button type="button" onclick="togglePassword()" class="login-password-toggle" tabindex="-1" aria-label="Toggle password visibility">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="login-submit-btn">
+                        <i class="fas fa-arrow-right-to-bracket"></i>
+                        Sign In to Dashboard
+                    </button>
+                </form>
+
+                <div class="login-credential-strip mt-4" role="note" aria-label="Default login credentials">
+                    <span class="login-credential-item login-credential-item-user">Username: <strong>Dheeraj</strong></span>
+                    <span class="login-credential-item login-credential-item-pass">Password: <strong>1707</strong></span>
+                </div>
+            </div>
+
+            <div class="index-card rounded-[1.75rem] p-6 sm:p-7">
+                <div class="flex items-center justify-between gap-3 mb-5">
+                    <div>
+                        <p class="text-xs uppercase tracking-[0.24em] text-royal-300/70">Dashboard page</p>
+                        <h2 class="mt-1 text-2xl font-bold text-white">Staff overview</h2>
+                    </div>
+                    <i class="fas fa-table-columns text-2xl text-amber-400"></i>
+                </div>
+
+                <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 mb-5">
+                    <div class="index-pill rounded-2xl p-4">
+                        <p class="text-xl font-bold text-white">1000</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-[0.16em] text-steel-300">Total staff</p>
+                    </div>
+                    <div class="index-pill rounded-2xl p-4">
+                        <p class="text-xl font-bold text-emerald-300">894</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-[0.16em] text-steel-300">Active</p>
+                    </div>
+                    <div class="index-pill rounded-2xl p-4">
+                        <p class="text-xl font-bold text-red-300">106</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-[0.16em] text-steel-300">Inactive</p>
+                    </div>
+                    <div class="index-pill rounded-2xl p-4">
+                        <p class="text-xl font-bold text-gold-300">15</p>
+                        <p class="mt-1 text-[11px] uppercase tracking-[0.16em] text-steel-300">Departments</p>
+                    </div>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-royal-800/30 bg-navy-950/70">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-navy-900/70 border-b border-royal-800/40">
+                                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gold-500/70 uppercase tracking-wider">ID</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gold-500/70 uppercase tracking-wider">Name</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gold-500/70 uppercase tracking-wider">Department</th>
+                                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gold-500/70 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-royal-800/20">
+                                <tr class="hover:bg-royal-900/20 transition-colors">
+                                    <td class="px-4 py-3 text-royal-300 font-semibold">EMP0010</td>
+                                    <td class="px-4 py-3 text-white">Veer Krishnan</td>
+                                    <td class="px-4 py-3 text-royal-300/70">Administration</td>
+                                    <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-900/40 text-red-400 border border-red-700/30">Inactive</span></td>
+                                </tr>
+                                <tr class="hover:bg-royal-900/20 transition-colors">
+                                    <td class="px-4 py-3 text-royal-300 font-semibold">EMP0021</td>
+                                    <td class="px-4 py-3 text-white">Chandran Roy</td>
+                                    <td class="px-4 py-3 text-royal-300/70">Administration</td>
+                                    <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-900/40 text-emerald-400 border border-emerald-700/30">Active</span></td>
+                                </tr>
+                                <tr class="hover:bg-royal-900/20 transition-colors">
+                                    <td class="px-4 py-3 text-royal-300 font-semibold">EMP0022</td>
+                                    <td class="px-4 py-3 text-white">Shobha Verma</td>
+                                    <td class="px-4 py-3 text-royal-300/70">Administration</td>
+                                    <td class="px-4 py-3"><span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-900/40 text-emerald-400 border border-emerald-700/30">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mt-8 grid md:grid-cols-3 gap-4">
+            <article class="index-card rounded-3xl p-5">
+                <h3 class="text-lg font-bold text-white">CRUD operations</h3>
+                <p class="mt-2 text-sm text-steel-300 leading-7">Add, edit, delete, and browse staff records from one dashboard.</p>
+            </article>
+            <article class="index-card rounded-3xl p-5">
+                <h3 class="text-lg font-bold text-white">Search and filters</h3>
+                <p class="mt-2 text-sm text-steel-300 leading-7">Search by name, ID, or department and narrow results by department or status.</p>
+            </article>
+            <article class="index-card rounded-3xl p-5">
+                <h3 class="text-lg font-bold text-white">Repository friendly</h3>
+                <p class="mt-2 text-sm text-steel-300 leading-7">The project uses local paths and a single Flask entry point, which keeps GitHub deployment simple.</p>
+            </article>
+        </section>
+
+        <footer class="mt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-steel-300/70">
+            <p>EmployeeDex &copy; 2026 — College Institute Staff Management</p>
+            <div class="flex items-center gap-4">
+                <a href="{{ url_for('login') }}" class="inline-flex items-center gap-2 text-amber-300 hover:text-amber-200 transition-colors">
+                    <i class="fas fa-arrow-right"></i>
+                    Open login
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="inline-flex items-center gap-2 text-royal-300 hover:text-white transition-colors">
+                    <i class="fas fa-chart-column"></i>
+                    Open dashboard
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
